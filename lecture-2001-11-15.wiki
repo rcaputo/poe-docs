@@ -1,0 +1,375 @@
+Formerly http://poe.perl.org/?Lecture_2001-11-05
+
+---
+
+This is a long, rambling, unfocused lecture Rocco gave on IRC, back in
+early November 2001.  It's cleaned up a bit.
+
+ROCCO:
+
+Once upon a time I wanted to make a mud.  And I'd been coding in perl
+for a couple years, and it was friendly and stuff.  But it didn't
+multitask.  Threads were considered impossible, even, so I decided to
+write my own.  (cue music and dream effects)
+
+I had written some select() code before... file_add, file_del, and a
+select() wrapper.  I still have it somewhere.  I'd also taken a few
+early stabs at something like POE, but they all had severe
+limitations.  The last proto-POE system I released is called Serv.
+It's still on the web somewhere.
+
+Around 1996 I figured I could simulate threads with event driven state
+machines.  My epiphany is in the p5p archives.  [ToDo] Include a link.
+
+I had also written a similar event driven thing in C++, wrapped around
+the MBBS core serial drivers.
+
+That's the background context/backstory for POE::Kernel and
+POE::Session.  One is the event loop, and the other is the tasks that
+it runs.
+
+POE::Kernel, at its heart, is yet another select loop.  That's what it
+started as, anyway.  It even used IO::Select to begin with.
+
+There are functions for managing select vectors (select_read,
+select_write, select_expedite, and the rest).. and the basic alarm and
+delay functions for affecting select()'s timeout.  There is also a
+list of events in time order.  That was about all pre-0.01 did, if I
+recall correctly.
+
+The idea of Session came from Serv, but Serv sucked because a session
+could only have one filehandle.  You couldn't write things like
+proxies without creating two interlocked sessions, one for each end of
+the pipe.  When I realized that, I decided to kill Serv :)
+
+So POE's core is basically the same as it started.  It's a list of
+events in time order, and a select() loop to watch for the next event
+time and whatever filehandles are being monitored.
+
+The select() timeout is essentially
+
+
+<perl>$queue[0]->[TIME] - time();
+</perl>
+
+
+MHORAM:
+
+So are you interested in building a MUD, or just an engine?
+
+ROCCO:
+
+Still interested in the MUD, but the engine takes all my time now. :/
+
+That's really all the core is, deep down.  Built around it is a big
+nasty knot of data that keeps reference counts for each session.  When
+a session watches a filehandle, say
+
+
+<perl>$kernel->select_read(\*STDIN, 'console_input') </perl>
+
+
+that knot of data tracks which session is watching what filehandles in
+which modes (and which events to emit when select(2) says the handle's
+ready).
+
+When a session posts an event, it's entered into the time-ordered list
+of events at the proper place.  That happens to be time(), so every
+call to post() enqueues its event after all the preceding ones.
+
+When an alarm or delay is posted, it's entered at whatever time is
+requested.
+
+And that knot of data tracks how many events are in the queue for each
+session, so that Kernel doesn't accidentally discard a session before
+it's received everything.  To be sure, all those counts get
+decremented as events are pulled out.
+
+A lot of the data knot is cross-references.  Reverse lookups and
+stuff.  For example, there's a hash that translates an alarm's ID into
+its due time, so that it can be found in the queue by a binary search
+instead of a linear one.  Most people don't need to know that, though.
+
+Aliases are just a hash of symbolic names and the session references
+they stand for.  And the knot of data keeps a count of aliases for
+each session so the Kernel doesn't accidentally discard a session
+that's listening for events.
+
+Let's see... filehandles, alarms, aliases, posted events.  yield() is
+just a "macro" for post to the same session.  delay() is just a
+"macro" for an alarm at time() + $delay.  select($handle, $read_event,
+$write_event, $expedite_event) is a "macro" for select_read +
+select_write + select_expedite together.
+
+POE is built up like that.  New stuff is built off the basic things
+that came before.
+
+Kernel invokes $session->_invoke_state(...), and that code figures out
+where the event should go.
+
+That brings up the largest of Philip Gwyn's current frustrations with
+POE.  The Kernel has no idea of Session capabilities because they're
+not its problem.
+
+JOS:
+
+Can you elaborate on that?
+
+ROCCO:
+
+Ok. When an event needs to be handled, the Kernel just passes it to a
+session's _invoke_state() and considers it done.  "Here, $session,
+have an event".  That's the extent of its responsibility.
+
+Session's _invoke_state() looks up the code to handle each event its
+given and calls it.  It's also responsible for calling a _default
+handler if the right bit of code isn't available.
+
+JOS:
+
+Ok, _invoke_state() gets it and hands it off.  Nothing else?
+
+ROCCO:
+
+Well... a lot of little other things, actually, before and after the
+handoff.  They mostly relate to the knot of data the Kernel maintains.
+
+OE::NFA is a kind of Session with some extra logic.  It still gets
+events through _invoke_state().  Instead of one handler for each
+event, though, it maintains an internal state and gives events to the
+handler in that state.
+
+So there could be twelve different "got_input" handlers, one for each
+state in a protocol.  Kernel has no idea this is going on.
+
+Back to the Kernel side of the handoff.
+
+JOS:
+
+(Tries to shape a mental image of the flow.)
+
+ROCCO:
+
+
+<perl> while (@queue) {
+  my $event = shift @queue;
+  $event->[SESSION]
+    ->_invoke_state($event->[NAME], $event->[ARGS], and some other stuff);
+}
+</perl>
+
+
+JOS:
+
+Ok, it just handles them one by one.
+
+ROCCO:
+
+Yeah.  No threads, you know.
+
+That's POE's dispatch loop in a very smoothed-over nutshell.
+
+MHORAM:
+
+Someone should draw up a diagram.
+
+JOS:
+
+"This is how POE works in one simple image."
+(Shows Mhoram a picture of a magic wand.)
+
+Rocco, this sounds pretty logical so far, but you haven't discussed
+much deeper magic here yet. =)
+
+ROCCO:
+
+What kind of deep magic?  Wheels, maybe?
+
+JOS:
+
+Among others...
+
+ROCCO:
+
+POE didn't have wheels to begin with.  I think maybe it had them by
+0.01, but this was after going around with Arthur about things for
+weeks.
+
+(This will come back around to other kernel magic in a bit.)
+
+I had already written some test servers, and they all had pretty much
+the same socket/listen/accept/sysread/syswrite logic.  As nice as
+stuff was, typing the same code each time was getting to be tiresome.
+Wheel came from that.
+
+I added a Kernel function that exposed Session's event handler
+define/remove code so you can say:
+
+
+<perl>$kernel->state(event => \&new_handler);
+</perl>
+
+
+to add a new handler for "event" and
+
+
+<perl>$kernel->state(event => undef);
+</perl>
+
+
+to remove it.  I took the states from my sample programs (see
+samples/selects.perl for example) and wrapped them in objects that
+create and destroy states on the fly.
+
+That way there's some extra start/stop overhead, but they should run
+as fast as your own event handlers.  Runtime performance usually wins
+over create/destroy performance when I'm making design decisions.
+
+Filter and Driver are some abstractions so that the same Wheel doesn't need to be rewritten for each basic protocol.
+
+I think i'm starting to get unfocused.  Questions?
+
+JOS:
+
+So how does Preprocessor fit in all this?  (seeing you advised that it
+is the FIRST thing I read to understand POE better)
+
+ROCCO:
+
+Kernel.pm is full of preprocessor macros.
+
+
+<perl>la la la { %do_this_mysterious_thing % } la la la
+</perl>
+
+
+If you're not familiar with the syntax and where to look stuff up,
+it'll make reading the source harder.  Like trying to read perl's
+source without knowing what the macros do.
+
+JOS:
+
+I'm not... the preprocessor looks kinda spooky to me.
+
+ROCCO:
+
+Macros are like inlined subs, but the Preprocessor uses a source
+filter to actually rewrite a program before it's compiled.
+
+
+<perl>macro numeric_max(<one>, <two>) {(((<one>) > (<two>)) ? (<one>) : (<two>))}
+  print "not "
+  unless {
+  %numeric_max NUM_ONE, NUM_TWO %} == 2;
+
+</perl>
+
+
+The print() statement is being rewritten read:
+
+
+<perl>print "not " unless (((1) > (2)) ? (1) : (2)) == 2;
+</perl>
+
+
+JOS:
+
+num_one and num_two being translated to 1 and 2?
+
+ROCCO:
+
+Yes, enum is like C's enum.  It creates a list of things in numeric
+order without having to define them.
+
+JOS:
+
+Can I see in Preprocessor.pm HOW it does that?
+
+ROCCO:
+
+You can see it if you look hard, but the idea's to get comfortable
+enough reading code that uses it.  Kernel uses it a lot
+
+There's more magic in the Kernel.  There's some housekeeping and
+knot-management before and after $session->_invoke_state() is called.
+
+_start and _stop events, for example.  Before the $session gets a
+_start event, the dispatcher creates a record for it.  And after
+$session gets a _stop event, the dispatcher destroys that record.  (a
+record in the "knot of data")
+
+That's also why _stop is so fatal and a session can't do anything
+after receiving one.  Part of session destruction (after _stop is
+dispatched) is explicitly going through the session's record and
+removing things it didn't clean up.
+
+If there are any filehandles still being watched, they're removed.
+Alarms are turned off.  Events are removed from the queue.  Aliases
+are forgotten... those sorts of things.
+
+That's why poe usually doesn't leak memory.  It's very strict about
+reference counting.
+
+Child sessions.
+
+At one point I had been focusing on the similarities between Sessions
+and system processes.  More to the point, I had been trying to write
+thrash.perl, which is a server and a bunch of clients in the same
+program.
+
+I needed a convenient way to keep track of how many clients were
+running so that new ones could be started if there were too few.  One
+session acts as a manager, creating new sessions as old ones go away.
+
+That's where parent/child relationships come from.  Or if it's not,
+it's a convenient scapegoat.
+
+When momma session creates a new baby session, the Kernel remembers
+which created the other.  Both the parent and child have entries in
+their records pointing to the other.  The parent gets a _child event,
+and the child gets a _parent event.  Those events are side effects of
+_start.  They never go into the queue, in fact.
+
+Likewise, _stop also generates _parent and _child events, but
+signifying a child's stoppage.
+
+POE::Kernel, by the way, is the momma session of them all.  And since
+signals are dispatched to child sessions, sending a signal to the
+Kernel broadcasts them everywhere.
+
+
+<perl>
+  # send SIGQUIT to everything without using kill()
+  $kernel->signal($kernel, 'QUIT');
+</perl>
+
+
+JOS:
+
+I vaguely remember there being some issues with trapping signals on
+Windows...  Ctrl-C wouldn't kill?
+
+ROCCO:
+
+You could make a signal socket that reads a line and rebroadcasts it
+as a signal.
+
+
+<perl>sub got_socket_input {
+  $_[KERNEL]->signal($_[KERNEL], $_[ARG0]);
+}
+</perl>
+
+
+Now you just need a kill program to connect to the socket and send a
+signal name. :)
+
+Anyway, the _parent and _child events also have side effects.  They
+update session structures's parent and child pointers.
+
+JOS:
+
+Ah, I think this will do nicely for a first lecture.  It's around
+bedtime, and I have some things to look over.
+
+(END)

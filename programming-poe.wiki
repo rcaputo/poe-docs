@@ -1,0 +1,180 @@
+Formerly http://poe.perl.org/action/edit?id=Programming_POE
+
+---
+
+= Programming POE =
+
+Ah, a book. Who'd have thunk it.
+
+Authors: [[Rocco]], [[Sungo]], DrForr
+
+The outline we're working with looks something like this (as with all
+things, it won't look anything like this in the end game. suck it up):
+
+== [[/Introduction to POE]]  ==
+
+* What is POE?
+** Why should I use it?
+** Where do I find it?
+** When and how was it developed?
+* General Concepts
+** Events
+** States
+** Sessions
+** Heaps
+* POErl 
+** Basic Rules
+** Session Creation
+** State Parameters
+** Methods
+*** post
+*** yield
+*** delay
+
+== POE ==
+
+* Overview
+** POE's event loop is flexible enough to handle GUIs like Tk and Gtk, and network events all at the same time.
+** Events in POE interact with Components.
+** Components can be network servers like IRC or HTTPD
+** Components can spawn their own children, much like how Apache handles connections.
+* Low-Level layers
+** Sessions are like processes on your typical O/S.
+** Just like processes, Sessions are non-blocking, which means that they're always ready to accept input.
+** Of course, processes are no use unless they can accept input and produce output.
+** Wheels take on this challenge. Wheels can deal with file handles, like Wheel::ReadWrite, or network events like Wheel::SocketFactory.
+* Components
+** An Event can be a webserver access. POE::Component::Client::HTTPD can manage that.
+** A webserver has to return something to the user, so, assuming we have a class called "Game", stick some text into a webpage and return it.
+* Wheel
+* Session (process)
+* Filters and the Driver
+** Filters take data from a source (socket, filehandle, and other Filters.
+** They take the incoming data and buffer, block and/or transform it in some manner.
+** Driver::SysRW
+* Kernel
+
+== [[/Advanced POE]] ==
+
+* Component Internals
+** Anatomy of a component
+** A sample component.
+* Inside Filters
+** Anatomy of a filter.
+*** Filters take an input handle and store the data collected somewhere.
+** A sample filter.
+*** The Block Filter collects N bytes of data
+*** And the Filter posts an event to send the post-processed data out.
+*** We'll simply separate the string into integers, identifiers, and everything else.
+*** Using the Block filter as a sample, we'll accumulate text into a buffer.
+*** Instead of returning the entire buffer
+**** If there's a number at the start of the buffer, send that back.
+**** If there's an identifier at the start, send that back.
+**** Couldn't find anything to process, so just return the first character.
+* Network protocol modules
+** HTTP
+*** Sample app: metavoyeur.  I have a command-line interface to fifteen or so search voyeurs.  It polls them periodically and generates combined popularity numbers.  it may be too big to present, though.
+*** Micrometavoyeur: a scaled down version.
+** IRC
+** Others (Just as important, but web applications will likely get the most time and attention)
+*** DNS
+*** ping
+*** PCap
+* General purpose components
+** Components don't need to be I/O bound.
+*** JobQueue
+** Text and Speech
+*** Text parsing
+**** RSS
+**** Tokenize
+**** Speech synthesis and recognition
+**** POE::Component::Festival - Speech generation
+**** POE::Component::SPX - Speech Recognition
+** IKC
+*** Kernels can communicate with one another.
+** Uncategorized Stuff
+*** Notes:
+**** The introductory section might cover projects using POE.  Lots of sexy stuff is going on.
+**** This uncategorized section is just free-association outside the main outline.  I'll weed through stuff here and put the useful bits into the outline above.
+**** I could be on the bad kind of crack.  Someone tell me some sense before I go nuts on this. :)
+**** Don't eat the brown acid! --[[coral]]
+
+== Uncategorized Topics ==
+
+These topics are from the original outline.  They should be integrated
+into the book or swept under a carpet.
+
+* How events are dispatched.
+** The precedence order of dispatched events.
+** Synchronous vs. asynchronous events.
+*** post() vs. call()
+*** Why not to use call()
+*** When call() is necessary.
+** Signal propagation from the operating system to your code.
+*** Signals are bad, but this is useful information.
+
+* Extending sessions with wheels.
+** How wheels work.
+*** Anatomy of a wheel.
+*** They plug into sessions.
+*** They add states into sessions, like viral DNA in an unsuspecting cell.
+*** They take their tentacles back out when destroyed.
+*** They cannot be given to another session!
+*** Nice place for a diagram: wheels, filters, and drivers.
+*** Design flaws, and a future without them?
+** How to write a wheel.
+*** Parts of a wheel.
+
+* Extending sessions with interfaces.
+** Interfaces are just boilerplate sets of states.
+** Interfaces are defined in session constructors.
+** So far nobody has ever used them.
+
+* Extending wheels with filters.
+** How filters work.
+** How to write a new filter.
+** Jeff has practically finished this session.
+
+* Extending programs with components.
+** What components are.
+** Component interfaces.
+*** Event driven: request and response messages.  Wallowing in the POE-ness of it all.
+*** Function interface with callbacks.  Hiding POE behind an innocent looking function library.
+*** Object interface with callbacks.  Hiding POE behind a suspicious looking set of objects.
+
+* Customizing event dispatch with new sessions.
+** How sessions work inside.  What goes on in there?
+*** Route events to handlers.
+*** They do the _default thing, not Kernel.
+*** NFA vs. Session.
+*** Sessions own resources, but Kernel does that for us.  Sessions are basically keys into the Kernel's data structures.
+** How sessions don't work.  What's wrong with them?
+*** Can't tell which events a session supports without the session's cooperation.  That's called "encapsulation", and it's a feature.
+*** A new kind of session could publish its event handler names, etc.
+** Design and build a new session from scratch.
+*** Something useful, fun, and not too big.  Ch'yeah!
+
+* Supporting new event loops.  Event substrates.
+** Deep guts magic.
+** Requires a firm grasp of POE::Preprocessor.
+** How to roll a new event substrate.
+*** Dear gods, no!
+
+* Macros
+** Templates for Perl source code.
+** const
+** enum
+** macro
+** conditional compilation (deprecated?)
+** What happens when const/enum names clash with other source code.
+*** Hint: It's bad.
+
+* *nix vs Win32 environment (kz15)
+** fork() implementations
+** Wheels and filters
+** Creating standalone executables in Win32
+*** Hint: sub RUNNING_IN_HELL () { $^O eq 'MSWin32' }
+
+[[Rocco]] adds here: Creating standalone executables in Win32 has been
+documented (and tested with perl2exe) in POE 0.21.  See the notes
+towards the end of the POE::Preprocessor perldoc/man page.

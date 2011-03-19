@@ -1,0 +1,83 @@
+Formerly http://poe.perl.org/action/edit?id=POE_Documentation/Style_Concepts
+
+---
+
+== Combined Concept ==
+
+This section discusses how things interact in POE.
+
+=== Kernel and Sessions ===
+
+The kernel's largest job is watching resources.  Not only does it
+check the resources for new events, but it also tracks their uses.  It
+does this itself, rather than relying on Perl reference counting,
+because it was written prior to Perl's weak references, and it's still
+in use by Perl versions as old as 5.004.
+
+The kernel tracks resources by the sessions that watch them.  It
+maintains each resource's reference count, cleaning them up and
+releasing their memory when they are no longer in use.  That is, it
+will do this if programs don't keep extra resource references.  Again,
+weak references would help here, but they don't exist in all the
+places where POE is useful.
+
+Sessions are resources themselves, and a session created within
+another becomes a child of its creator.  The kernel tracks these
+relationships for the purpose of job control-- especially the ability
+for one session to manage a pool of several others-- and signal
+propagation within a program.
+
+=== Sessions and Wheels ===
+
+While writing sample programs and test cases for POE's early
+development, the same sorts of algorithms came up again and again.
+The most common routines involved I/O, either at the socket
+establishment level or for buffered reading and writing on open files.
+
+These recurring routines are often filehandle watcher callbacks or
+supporting states.  Rewriting them had become tiresome almost as soon
+as POE was released, so it was decided to make modular units out of
+them.  Wheels were invented, replacing the ones being re-created with
+every program.
+
+Wheels were invented to encapsulate these bundles of redundant states
+and provide the glue logic to insert them into sessions.  They are
+state machine fragments that plug themselves into sessions at creation
+time, giving their owners new capabilities.
+
+Wheels are not resources, and POE's kernel will not keep track of
+them.  It's therefore important that sessions hold onto their wheel
+references for as long as they're needed.  Wheels may be given
+resources to manage; in this case, the resource is watched internally
+by the wheel, and destroying it will cascade cleanup to the resource
+itself.  Wheels are implemented so that any circular references are
+broken at destruction time, ensuring complete destruction and memory
+reuse.
+
+Wheels bind themselves tightly to the sessions that create them.
+While it's possible to pass wheel references amongst sessions, their
+states will remain in the sessions that created them.
+
+Wheels often deal with resources on behalf of their sessions, finally
+passing back events when something truly notable occurs.  On the other
+hand, sessions usually invoke wheel features through direct method
+calls.
+
+=== I/O Wheels, Drivers, and Filters ===
+
+Many I/O wheels use drivers and filters to abstract away the gory
+details of raw file I/O and the specifics of low-level data parsing
+and marshalling.  This division allows the I/O wheels themselves to
+focus on the logic necessary to perform a task.
+
+The ReadWrite wheel, for example, performs simple reading and writing.
+It can adapt to the natures of several different file types by virtue
+of using different filters.  It can perform HTTP server transactions
+by using Filter::HTTPD; it can read and write lines by using
+Filter::Line; or it can use some other filter, either currently
+available or written in the future.
+
+
+This style guide is copyright 2001-2002 by Rocco Caputo.  All rights
+reserved.  This guide is free text and may be distributed and/or
+modified under the same terms as Perl itself.

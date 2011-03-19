@@ -1,0 +1,265 @@
+Formerly http://poe.perl.org/action/edit?id=POE_Documentation/Style_Modules
+
+---
+
+== Anatomy of a Man Page ==
+
+These are the main <tt>=head1</tt> headings in most manpages.
+
+=== NAME ===
+
+This section's body contains the module's class name, a hyphen, and a
+one-line description for <CODE>man -k</CODE> or <CODE>apropos</CODE>.
+
+  =head1 NAME
+
+  Wibble - a wibble module used for wibbling widgets
+
+=== SYNOPSIS ===
+
+This section's body contains example uses of the module.  Nine times
+out of ten, experienced users should be able to look at the SYNOPSIS
+for a quick reminder of how something works.
+
+  =head1 SYNOPSIS
+
+  use Wibble;
+  my $wibble = Wibble-&gt;new();
+  $wibble-&gt;wobble($widget);
+
+=== DESCRIPTION ===
+
+A module's DESCRIPTION describes the module in detail and explains how
+it works.  It provides background information on some of the module's
+concepts, and explains its public interface.
+
+  =head1 DESCRIPTION
+
+  The Wibble module blah blah blah blah blah.
+
+Here are some popular sub-heading within DESCRIPTION.  They have been
+cribbed from the perlfunc man page.
+
+==== Methods (or Functions) by Category ====
+
+In a complex module like Kernel, it helps to group public methods into
+related categories.
+
+  =head2 Methods by Category
+
+  =over 2
+
+  =item Methods for wobbling
+
+  C&lt;wobble_now&gt;, C&lt;wobble_later&gt;, C&lt;wobble_to_and_fro&gt;
+
+  =back
+
+==== Methods (or Functions) by Name ====
+
+This is an alphabetical listing of each method (or function), its call
+signature, and a description of how it works.
+
+  =head2 Alphabetical Listing of Wibble Functions
+
+  =over 2
+
+  =item wobble LIST
+
+  =item wobble
+
+  Mightily wobbles a list of widgets.  Without a widget list, the
+  Wibble object wobbles itself.
+
+  See also the C&lt;wobble&gt; event.
+
+  =item ...
+
+  ...
+
+  =back
+
+For POE, methods that can generate events should list the events they
+generate, perhaps linking to them so that hyperlinked documentation
+can take the reader there right away.
+
+==== Events by Category ====
+
+Many POE modules can generate events, and some of the events can be
+grouped into categories.  This lists each category of events and the
+events that can be found within.
+
+  =head2 Events by Category
+
+  =over 2
+
+  =item Job control events
+
+  Some sort of description of job control events goes here.
+
+  _child, _parent, _start, _stop
+
+  =back
+
+==== Events by Name ====
+
+This is an alphabetical listing of each event the module can generate.
+Where a particular class of events doesn't have a default name, the
+class' name is used instead.
+
+  =head2 Alphabetical Listing of Wibble Events
+
+  =over 2
+
+  =item wobble
+
+  Tells a widget when it's been wobbled by a Wibble object.  C&lt;wobble&gt;
+  events include no parameters.
+
+  =item immediate weeble events
+
+  Immediately tell a widget it's been weebled by a Wibble object.
+  These are not queued and dispatched later.  They include one
+  parameter which describes how hard a widget has been weebled.
+
+  =back
+
+=== BUGS ===
+
+Programs rarely are complete or perfect.  The BUGS section lists known
+gotchas and problems, regardless whether they're intended to be fixed
+any time soon.  Anything weird that's meant to be that way is a
+feature and should be discussed in the DESCRIPTION instead.
+
+  =head1 BUGS
+
+  Wibbles wobble, but they don't fall down.
+
+=== DIAGNOSTICS ===
+
+If the module contains things used for debugging it, and they're
+intended to be used by other programmers, then they're documented
+here.
+
+  =head1 DIAGNOSTICS
+
+  Wibble has a number of tracing and asserting routines which can be
+  enabled by making the following constants true.
+
+  =over 2
+
+  =item ASSERT_WIBBLE
+
+  Yatta-yatta-yatta.
+
+  =back
+
+=== AUTHORS ===
+
+The module's authors, their contact addresses (e-mail and/or home
+page), and their roles in creating the module.
+
+  =head1 AUTHORS
+
+  Arthur Bergman, primary author, <foo@foo.com>
+  Rocco Caputo, nitpicker, <foo@bar.com>
+  Matt Cashner, documentation, <foo@baz.com>
+  Richard Soderberg, lovely and talented assistant, <foo@quux.com>
+
+=== LICENSE ===
+
+The module's copyright notice and license information go here.  If the
+module is maintained out of a revision control system, a copy of its
+ID tag is also useful here.
+
+  $Id$
+
+  POE::Wibble is Copyright 2001 by Arthur Bergman.  All rights are
+  reserved. You may distribute and/or modify it under the same terms
+  as perl itself.
+
+Add-on modules which are written and maintained by others (such as
+components) can have whatever license their authors decide are best.
+
+POE core modules, however, must be distributed under the same terms as
+Perl itself.  This simplifies licensing issues for people using POE:
+It's assumed they already have no problems with Perl's license.
+
+=== SEE ALSO ===
+
+Hardly any POE module stands on its own.  The SEE ALSO section points
+readers to related modules where more information lies.
+
+  =head1 SEE ALSO
+
+  Wibble wobbles widgets.  See L<Widget>; for more information about
+  widgets.
+
+== Anatomy of a Method or Function Definitions ==
+
+Functions should be defined using the same general format, which I'm
+cribbing from perlfunc because everyone should be familiar with that.
+
+The first sentence of the first paragraph summarizes the method or
+function's purpose.  The rest of the paragraph discusses different
+call signatures and contexts, and the function's behavior in each.
+
+The remainder of the description goes into detail about the different
+ways a method or function can be called, in order from most common to
+least common usage.  Use lots of examples, preferrably ones that can
+be lifted verbatim to do useful things.
+
+See just about everything in perlfunc as an example.
+
+== Test Messages ==
+
+It is important that test messages be clear and consistent.  A lot of
+them indicate skipped tests, usually because some feature or module is
+not present.
+
+  $^O does not support (feature) properly.
+  $^O does not support (feature).
+  Can't test (toolkit) without a DISPLAY. (Set one today, ok?)
+  Could not create a pipe in any form.
+  Module::Foo #.## or newer is needede for this/these tests.
+  Module::Foo and Module::Bar are needed for this/these tests.
+  Module::Foo is needed for this/these tests.
+  Module::Foo or Module::Bar is needed for this/these tests.
+  Module::Foo requires Module::Bar #.## or newer.
+  Module::Foo, Module::Bar, or Module::Baz is needed for this/these tests.
+
+  ***
+  *** Please note: This test will pop up a window.
+  ***
+
+  ***
+  *** Seconds between signal and first reap: (seconds)
+  *** Seconds to wait for other reaps: (seconds)
+  *** Seconds to wait after final reap: 5
+  ***
+
+  ***
+  *** Seconds to fork (count) children: (seconds)
+  *** Seconds to wait for system to settle: (seconds)
+  ***
+
+  Term::Cap did not find a valid termcap file.
+  This test crashes ActiveState Perl.
+
+  ***
+  *** This test tries to compensate for slow machines.  It times its
+  *** first test and uses that as its timeout for subsequent tests.
+  *** This test may take a while on slow or resource-starved machines.
+  *** It may even fail if it incorrectly estimates its timeouts.
+  ***
+
+  Windows tests are not necessary on $^O.
+
+== Version, Author & Copyright ==
+
+$Id$
+
+
+This style guide is copyright 2001-2002 by Rocco Caputo.  All rights
+reserved.  This guide is free text and may be distributed and/or
+modified under the same terms as Perl itself.

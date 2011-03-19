@@ -1,4 +1,8 @@
-http://poe.perl.org/?POE_Documentation/Beginners_Guide
+A copy of http://poe.perl.org/?POE_Documentation/Beginners_Guide
+The wiki-hosted document has 17 Delicious bookmarks at the time of
+this writing, implying it's valuable to people where it is.
+
+---
 
 What everyone needs to know about POE.
 

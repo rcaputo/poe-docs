@@ -1,0 +1,1396 @@
+Formerly http://poe.perl.org/action/edit?id=Poe_Book_Outline
+
+---
+
+= Programming in the Perl Object Environment =
+
+This is not a complete outline.  While I've already begun writing, this outline is largely broken (Mostly between the third and sixth chapters), as its in mid-rework.  I just wanted to see how it looked in the POE wiki's otl parser.  If look at this and think I am missing or will miss something important, please let me know.  (mailto:tag@cpan.org)
+
+<!--
+" vim: syntax=otl
+-->
+
+<H1><H1><outline-head>
+</H1></H1>
+
+=  =
+<H1><H1>
+</H1></H1>
+
+=  =
+<H1><H1>Perl Object Environment
+</H1></H1>
+
+=  =
+<H1>The introduction to this chapter should provide various information
+</H1>
+
+<H1>reguaring what POE does.  A simple over view of how it runs, and a
+</H1>
+
+<H1>bit of information on how to use it.
+</H1>
+
+<H1><H2>Why use POE?
+</H2></H1>
+
+=  =
+<H1><H3>Its effective
+</H3></H1>
+
+=  =
+<H1>POE Is much more efficient and effective than forking or
+</H1>
+
+<H1>multithreading.
+</H1>
+
+<H1><H3>Its efficient
+</H3></H1>
+
+=  =
+<H1>Efficiency is often overlooked in favor of spending large amounts
+</H1>
+
+<H1>of money on scaling server clusters in order to handle load and
+</H1>
+
+<H1>decrease development time simultaniously.  This is a fallacy, and
+</H1>
+
+<H1>aside from that, POE can scale in ways nothing else can.
+</H1>
+
+<H1><H3>Its cooperative
+</H3></H1>
+
+=  =
+<H1>Because POE doesn't thread or fork, data is easier to manage.
+</H1>
+
+<H1>Multithreading requires a very difficult to maintain combination of
+</H1>
+
+<H1>locks on all shared data to avoid corruption.  Forking doesn't
+</H1>
+
+<H1>allow sharing of data after the new process is created, other than
+</H1>
+
+<H1>via signals, alarms or pipes.  This makes POE more powerful, and
+</H1>
+
+<H1>easier to maintain.
+</H1>
+
+<H1><H2>What POE does
+</H2></H1>
+
+=  =
+<H1><H3>What POE was meant to be
+</H3></H1>
+
+=  =
+<H1>POE was designed to be an object environment.  It is, but its not
+</H1>
+
+<H1>quite how it was original invisioned.  Here we will cover just a
+</H1>
+
+<H1>snippet of POE History.
+</H1>
+
+<H1><H3>What POE is today
+</H3></H1>
+
+=  =
+<H1>POE has become alot more than the Object/Event multitasking
+</H1>
+
+<H1>environment it was intended to be.  But in the same its alot less.
+</H1>
+
+<H1>We're going to talk a little about the new directions POE is
+</H1>
+
+<H1>taking as a flexable, extendable framework for scalable, event
+</H1>
+
+<H1>based applications.
+</H1>
+
+<H1><H3>What POE can and should do
+</H3></H1>
+
+=  =
+<H1>Here we're going to just give an overview of what POE is capable
+</H1>
+
+<H1>of, large multitasking environments, distributed applications,
+</H1>
+
+<H1>extremely efficient usage of processing time, deligation of
+</H1>
+
+<H1>resources.
+</H1>
+
+<H1><H3>What POE can't and shouldn't do
+</H3></H1>
+
+=  =
+<H1>POE has some limitations...but not many.
+</H1>
+
+<H1><H5>+ Note
+</H5></H1>
+
+=  =
+<H1>I'm actually considering pulling this out and maybe
+</H1>
+
+<H1>summarizing the above subsection to be more along the
+</H1>
+
+<H1>lines of "What POE can do for you".  As this is sort of
+</H1>
+
+<H1>covered below, in "Problems POE Creates"
+</H1>
+
+<H1><H2>Problems POE Solves
+</H2></H1>
+
+=  =
+<H1><H3>Effective use of processing time
+</H3></H1>
+
+=  =
+<H1>POE deligates process time, giving events a chance to be performed
+</H1>
+
+<H1>in order of priority, and from their in FIFO sequence.
+</H1>
+
+<H1><H3>Time slicing
+</H3></H1>
+
+=  =
+<H1>We'll touch base with the concept of time slicing that makes most
+</H1>
+
+<H1>multitasking systems work.
+</H1>
+
+<H1><H3>Wait without limits
+</H3></H1>
+
+=  =
+<H1>Its quite easy to get a program to wait for input or wait for
+</H1>
+
+<H1>another process to exit.  But POE will wait for anything and
+</H1>
+
+<H1>everything at once, and then prioritize timed events in addition
+</H1>
+
+<H1>to this.
+</H1>
+
+<H1><H2>Problems POE Creates
+</H2></H1>
+
+=  =
+<H1><H3>Limitations in program design
+</H3></H1>
+
+=  =
+<H1>Not all modules work well with POE, we will discuss this, and                         other things
+</H1>
+
+<H1><H3>Nonblocking requirement
+</H3></H1>
+
+=  =
+<H1>Its quite easy to stop a POE program from running.  However you
+</H1>
+
+<H1>have to think about this in order to keep a POE program running,
+</H1>
+
+<H1>and in order to keep it running effectively.  Its all to simple
+</H1>
+
+<H1>for a bad program design to make POE less responsive.  We'll
+</H1>
+
+<H1>discuss this in this subsection.
+</H1>
+
+<H1><H3>There's always an answer
+</H3></H1>
+
+=  =
+<H1>Pretty much every problem presented by the induction of POE into
+</H1>
+
+<H1>your programs design can be solved by a work around or other that
+</H1>
+
+<H1>has been added to POE to solve this problem.
+</H1>
+
+<H1><H1>Power Operating Environment
+</H1></H1>
+
+=  =
+<H1>Here we will introduce various POE concepts and walk the reader through
+</H1>
+
+<H1>the writing of thier first POE program.
+</H1>
+
+<H1><H2>POE Sessions
+</H2></H1>
+
+=  =
+<H1><H3>Explaination of Sessions
+</H3></H1>
+
+=  =
+<H1>We'll provide a breif overview of what Sessions are, and what they
+</H1>
+
+<H1>are for.  We will dip lightly into how they work, but try not to
+</H1>
+
+<H1>burry the reader in advanced concepts.
+</H1>
+
+<H1><H4>Inline States
+</H4></H1>
+
+=  =
+<H1>We'll introduce inline states, which are the pinnacle of POE
+</H1>
+
+<H1>programming.  We'll explain how they work and what they do, and
+</H1>
+
+<H1>what they get.
+</H1>
+
+<H1><H4>Session Heaps
+</H4></H1>
+
+=  =
+<H1>This section should detail how the heaps work, why the heaps
+</H1>
+
+<H1>are provided, and how you can access them.
+</H1>
+
+<H1><H3>Creating a Session
+</H3></H1>
+
+=  =
+<H1>Its time to introduce the create method.  I'm opting to leave
+</H1>
+
+<H1>'new' out of the book entirely, since it is never needed it is
+</H1>
+
+<H1>only occasionally useful and I would like to see less code use it.
+</H1>
+
+<H1><H5>+ Note
+</H5></H1>
+
+=  =
+<H1>That is assuming Rocco agrees.
+</H1>
+
+<H1><H4>State Arguments
+</H4></H1>
+
+=  =
+<H1>We'll introduce the large number of arguements each session
+</H1>
+
+<H1>reiceves, as well as why POE is implimented this way.
+</H1>
+
+<H1><H4>Constants - a real psuedo hash
+</H4></H1>
+
+=  =
+<H1>In this section we'll explain the constants which are exported
+</H1>
+
+<H1>by the POE Session module, and how this greatly increases the
+</H1>
+
+<H1>efficiency of inline states over a hash reference or argument
+</H1>
+
+<H1>hashes.
+</H1>
+
+<H1><H2>Introducing the POE Kernel
+</H2></H1>
+
+=  =
+<H1><H3>What it does
+</H3></H1>
+
+=  =
+<H1>The POE Kernel is the center of POE, respectively.  In this
+</H1>
+
+<H1>section we will provide a little introduction to how the POE
+</H1>
+
+<H1>Kernel works, so our reader can understand a little of whats going
+</H1>
+
+<H1>on.
+</H1>
+
+<H1><H3>How it works
+</H3></H1>
+
+=  =
+<H1>The POE Kernel watches signals, filehandles, and prepairs alarms
+</H1>
+
+<H1>all at once.  Here we will bring how this happens to light.
+</H1>
+
+<H1><H3>Using the Kernel
+</H3></H1>
+
+=  =
+<H1>We'll explain how to use the POE Kernel, in short.  We wont really
+</H1>
+
+<H1>go into great detail about its other features, we'll bring this in
+</H1>
+
+<H1>later.
+</H1>
+
+<H1><H4>->run
+</H4></H1>
+
+=  =
+<H1><H4>->post
+</H4></H1>
+
+=  =
+<H1><H4>->yield
+</H4></H1>
+
+=  =
+<H1><H5>+ Note
+</H5></H1>
+
+=  =
+<H1>Just the basics at first.
+</H1>
+
+<H1><H2>Interaction between Kernel and Session
+</H2></H1>
+
+=  =
+<H1>In this section we'll illustrate how the POE Kernel interacts with
+</H1>
+
+<H1>its Sessions.  Hopefully this will bring into light when a task
+</H1>
+
+<H1>deserves its own Session, as well as explain some of the design
+</H1>
+
+<H1>decisions of POE in general.
+</H1>
+
+<H1><H3>Special States
+</H3></H1>
+
+=  =
+<H1>POE Sessions treat states with a few specific names in a special
+</H1>
+
+<H1>way.  In this section, we will introduce these states and thier
+</H1>
+
+<H1>workings.  We will also explain why the reader should know about
+</H1>
+
+<H1>atleast some of them from the begining.  (Namely _start).
+</H1>
+
+<H1><H4>_start
+</H4></H1>
+
+=  =
+<H1><H4>_stop
+</H4></H1>
+
+=  =
+<H1><H4>_child
+</H4></H1>
+
+=  =
+<H1><H4>_parent
+</H4></H1>
+
+=  =
+<H1><H4>_default
+</H4></H1>
+
+=  =
+<H1><H4>_signal
+</H4></H1>
+
+=  =
+<H1><H3>Event Routing
+</H3></H1>
+
+=  =
+<H1>We will also describe POE's event routing, both the low level
+</H1>
+
+<H1>event routing performed by the POE Kernel and the high level event
+</H1>
+
+<H1>routing which should be performed by most Components.  Sure
+</H1>
+
+<H1>references to the chapter on Components, somewhere around the
+</H1>
+
+<H1>section which goes over writing your own components, for more
+</H1>
+
+<H1>information on why higher level event routing should be used.
+</H1>
+
+<H1><H1>Perl Overdrive Engine
+</H1></H1>
+
+=  =
+<H1>Sooner than later we needed to bring this up, so this section will be
+</H1>
+
+<H1>dedicated to the POE Wheel. This chapter will introduce the concept of the
+</H1>
+
+<H1>Wheel.  What its intentions are, and what the expected behavior of a Wheel
+</H1>
+
+<H1>is.
+</H1>
+
+<H1><H2>Nonblocking IO
+</H2></H1>
+
+=  =
+<H1>This section will describe how POE's Wheels interact with the Kernel
+</H1>
+
+<H1>to perform nonblocking IO on a higher level.
+</H1>
+
+<H1><H2>Different Wheels for different environments
+</H2></H1>
+
+=  =
+<H1>Like different tires for different terrain.
+</H1>
+
+<H1><H3>ReadWrite Wheel
+</H3></H1>
+
+=  =
+<H1>We must first illustrate the ReadWrite, possibly the most common,
+</H1>
+
+<H1>POE Wheel.
+</H1>
+
+<H1><H3>SocketFactory Wheel
+</H3></H1>
+
+=  =
+<H1>And then SocketFactory Wheel and how to use it with the ReadWrite
+</H1>
+
+<H1>wheel to do create sockets in a completely POE friendly manner.
+</H1>
+
+<H1><H3>ListenAccept Wheel
+</H3></H1>
+
+=  =
+<H1>Then while we're on topic the ListenAccept Wheel, and how you can
+</H1>
+
+<H1>use it to work with Net:: and other modules which create thier own
+</H1>
+
+<H1>sockets in a non-POE-friendly manner.
+</H1>
+
+<H1><H3>FollowTail Wheel
+</H3></H1>
+
+=  =
+<H1>A brief description of the FollowTail Wheel and maybe a multiple
+</H1>
+
+<H1>log chaser example.
+</H1>
+
+<H1><H3>Curses Wheel
+</H3></H1>
+
+=  =
+<H1>The Curses Wheel and an example of how to use it to do simple 
+</H1>
+
+<H1>nonblocking keyboard input.
+</H1>
+
+<H1><H3>Run Wheel
+</H3></H1>
+
+=  =
+<H1>Then last but not least the Run Wheel. We'll provide an example of
+</H1>
+
+<H1>how it can be used to do inter-process communication with a
+</H1>
+
+<H1>programs children in a nonblocking form, while your program does
+</H1>
+
+<H1>other things.
+</H1>
+
+<H1><H2>POE Filters
+</H2></H1>
+
+=  =
+<H1>This would be a good time to go over POE Filters and what thier
+</H1>
+
+<H1>purpose is.  And then go over the various filters.
+</H1>
+
+<H1><H3>Line Filter
+</H3></H1>
+
+=  =
+<H1>The line filter, the most common and often default should be
+</H1>
+
+<H1>first.
+</H1>
+
+<H1><H3>Block Filter
+</H3></H1>
+
+=  =
+<H1>The block filter, and how it can be used for binary networking
+</H1>
+
+<H1>protocols.
+</H1>
+
+<H1><H3>Reference Filter
+</H3></H1>
+
+=  =
+<H1>The reference filter and probably here, while we're on references,
+</H1>
+
+<H1>we'll refer them to the the section on Application Servers and
+</H1>
+
+<H1>IKC.
+</H1>
+
+<H1><H3>Grep Filter
+</H3></H1>
+
+=  =
+<H1>The clever and ultimately flexable Grep filter
+</H1>
+
+<H1><H3>Map filter
+</H3></H1>
+
+=  =
+<H1>The map filter and how it lets them get all down and dirty with
+</H1>
+
+<H1>thier data.
+</H1>
+
+<H1><H3>Stackable Filter
+</H3></H1>
+
+=  =
+<H1>And then how to use several filters togeather, using the stackable
+</H1>
+
+<H1>filter.
+</H1>
+
+<H1><H1>POE Components
+</H1></H1>
+
+=  =
+<H1>Now that we have the details out of the way, the reader should be familiar
+</H1>
+
+<H1>with enough POE to write a Component or two.
+</H1>
+
+<H1><H2>Component Oriented Programming
+</H2></H1>
+
+=  =
+<H1>But first we must introduce the concept of the component.
+</H1>
+
+<H1><H2>Component Designs
+</H2></H1>
+
+=  =
+<H1>And why component based designs work for the programmer.
+</H1>
+
+<H1><H3>Message Based Components
+</H3></H1>
+
+=  =
+<H1>We should describe message based copmonents and how thier event
+</H1>
+
+<H1>callbacks let you work seemlessly with another session who's
+</H1>
+
+<H1>output you have to wait for.
+</H1>
+
+<H1><H3>Session Based Components
+</H3></H1>
+
+=  =
+<H1>As well as Session based components that allow you to build your
+</H1>
+
+<H1>entire application around them.
+</H1>
+
+<H1><H2>Writing your own components
+</H2></H1>
+
+=  =
+<H1>It will describe how you can easily go about writing your own
+</H1>
+
+<H1>components.
+</H1>
+
+<H1><H3>Writing components from scratch.
+</H3></H1>
+
+=  =
+<H1>How small an simple a component can be, and yet how much it can
+</H1>
+
+<H1>break up your design and make it easier to manage.
+</H1>
+
+<H1><H3>Writing components using components.
+</H3></H1>
+
+=  =
+<H1>As well as how you would use other components to write things like
+</H1>
+
+<H1>protocol specific daemons that build stand alone applications
+</H1>
+
+<H1>using POE.  Clients will be covered too of course.
+</H1>
+
+<H1><H3>Component Conventions
+</H3></H1>
+
+=  =
+<H1>Things people should consider when designing thier components,
+</H1>
+
+<H1>such as inline state naming, high level event routing, how to go
+</H1>
+
+<H1>about exporting constants and adding features to the array given
+</H1>
+
+<H1>to states.  Also interface considerations, and what ever else may
+</H1>
+
+<H1>come up between now and writing this section..'
+</H1>
+
+<H1><H1>User interfaces and POE
+</H1></H1>
+
+=  =
+<H1>Now we will talk about using POE For user interfaces.  We will go over how
+</H1>
+
+<H1>we replace other event loops with POE loops, and how to do it with or
+</H1>
+
+<H1>without an alternative POE Loop.
+</H1>
+
+<H1><H2>POE and Tk
+</H2></H1>
+
+=  =
+<H1>We'll talk about POE and Tk and how POE's custom Tk loop has been
+</H1>
+
+<H1>designed to work seemlessly with Tk.
+</H1>
+
+<H1><H2>POE and Gtk
+</H2></H1>
+
+=  =
+<H1>We'll also talk about the Gtk event loop and how POE replaces it, as
+</H1>
+
+<H1>well as how its signal and other handlers communicate.
+</H1>
+
+<H1><H2>POE and Qt
+</H2></H1>
+
+=  =
+<H1>Maybe by then there will be some Qt to cover, as that event loop
+</H1>
+
+<H1>hasn't been addressed yet.
+</H1>
+
+<H1><H2>POE and Curses
+</H2></H1>
+
+=  =
+<H1>And then we'll talk about the down and dirty, using POE for Good old
+</H1>
+
+<H1>Curses interfaces.
+</H1>
+
+<H1><H3>POE and the Curses UI Toolkit
+</H3></H1>
+
+=  =
+<H1>Someplace we might wish to mention the Curses UI Toolkit
+</H1>
+
+<H1>adaptation.
+</H1>
+
+<H1><H3>The Term Visual interface
+</H3></H1>
+
+=  =
+<H1>We also should make mention of the very nice Term Visual
+</H1>
+
+<H1>interface.
+</H1>
+
+<H1><H2>POE and the xyz UI
+</H2></H1>
+
+=  =
+<H1>As well as more information on how to make POE work with any old user
+</H1>
+
+<H1>interface.  How to go about circumventing foreign event loops to make
+</H1>
+
+<H1>them use POE, as well as how to make POE use other event loops (also
+</H1>
+
+<H1>when you can, when you should, and when you shouldn't take that
+</H1>
+
+<H1>approach).
+</H1>
+
+<H1><H1>Programming Over Easy
+</H1></H1>
+
+=  =
+<H1>Now would be a good time to make a trip back into Networking to describe
+</H1>
+
+<H1>it in possibly a little more detail, since our reader probably by now
+</H1>
+
+<H1>wants to either make a client, a daemon, or never ever hear of POE again.
+</H1>
+
+<H1>Hopefully not the latter :)
+</H1>
+
+<H1><H2>Moving from IO::Select
+</H2></H1>
+
+=  =
+<H1>We'll describe how to migrate IO::Select applications.
+</H1>
+
+<H1><H2>Moving from Net::SomeModule
+</H2></H1>
+
+=  =
+<H1>And we'll describe how to work with Net::SomeModule, as well as a few
+</H1>
+
+<H1>of the components which can easily replace Net::SomeModule.
+</H1>
+
+<H1><H2>Using POE for TCP
+</H2></H1>
+
+=  =
+<H1>And we'll talk about TCP, for Clients and Servers.  Using POE's
+</H1>
+
+<H1>ReadWrite and SocketFactory wheel's, and daemonizing
+</H1>
+
+<H1><H3>POE Clients
+</H3></H1>
+
+=  =
+<H1><H3>POE Daemons
+</H3></H1>
+
+=  =
+<H1><H3>Using TCP Components
+</H3></H1>
+
+=  =
+<H1>And we'll discuss the components that make thier lives easier.  As
+</H1>
+
+<H1>well as the components which make thier lives a little harder to
+</H1>
+
+<H1>achieve a slightly different ultimate goal.
+</H1>
+
+<H1><H4>Client Components
+</H4></H1>
+
+=  =
+<H1>Client Components
+</H1>
+
+<H1><H4>Daemon Components
+</H4></H1>
+
+=  =
+<H1>And Daemon Components.
+</H1>
+
+<H1><H2>Using POE for UDP
+</H2></H1>
+
+=  =
+<H1>And then we'll take a short trip into the land of UDP and POE.
+</H1>
+
+<H1><H2>Using POE for DNS
+</H2></H1>
+
+=  =
+<H1>But by this time, they're going to want to know about the DNS Client
+</H1>
+
+<H1>Component, which should allow them to utilize some of their recently
+</H1>
+
+<H1>aquired message based communication knowledge.
+</H1>
+
+<H1><H1>Advanced Concepts
+</H1></H1>
+
+=  =
+<H1><H2>NFA
+</H2></H1>
+
+=  =
+<H1>Then we should describe the NFA State Machine.  I will have to learn a
+</H1>
+
+<H1>little bit more about it myself before I can write about it, I'm still
+</H1>
+
+<H1>kind of in awe :)
+</H1>
+
+<H1><H1>Proliferation Of Events
+</H1></H1>
+
+=  =
+<H1>The introduction to this chapter will begin with explanations of what
+</H1>
+
+<H1>distributing tasks is all about.  Why we do it, why we often dont, and why
+</H1>
+
+<H1>POE does a good job of this.
+</H1>
+
+<H1><H2>Application Servers
+</H2></H1>
+
+=  =
+<H1>Then we'll explain how to design application servers in POE.
+</H1>
+
+<H1><H2>InterKernel Communication
+</H2></H1>
+
+=  =
+<H1>Using InterKernel Communication, and the IKC Components.
+</H1>
+
+<H1><H3>The IKC Server
+</H3></H1>
+
+=  =
+<H1>We'll explain how the IKC Server works to seemelessly accept
+</H1>
+
+<H1>instructions as through they came from inside the current Kernel.
+</H1>
+
+<H1><H3>The IKC Client
+</H3></H1>
+
+=  =
+<H1>And how the IKC Client works with the IKC Server to give
+</H1>
+
+<H1>instructions to other Kernels.
+</H1>
+
+<H1><H3>The IKC Responder
+</H3></H1>
+
+=  =
+<H1>As well as How the responder can be used to generate responses
+</H1>
+
+<H1>seemlessly like message based POE Components.
+</H1>
+
+<H1><H3>Serialization
+</H3></H1>
+
+=  =
+<H1>And how you can use whatever Serialization you want to transfer
+</H1>
+
+<H1>the data, including something like YAML or Data::Dumper which are
+</H1>
+
+<H1>a bit more legible for logging/debugging.  And a small overview of
+</H1>
+
+<H1>various available Serialization modules and languages.
+</H1>
+
+<H1><H5>+ Note
+</H5></H1>
+
+=  =
+<H1>Surely we will make references here back to Filter-Reference
+</H1>
+
+<H1>mentioned earlier in the book
+</H1>
+
+<H1><H3>Non POE Clients
+</H3></H1>
+
+=  =
+<H1>We'll demonstrate how to use Non POE clients in places where its
+</H1>
+
+<H1>not appropriate to use a POE client, but it is appropriate to
+</H1>
+
+<H1>distribute your application.  I think the example we should use is
+</H1>
+
+<H1>a mod_perl application that must scale, we'll make POE distribute
+</H1>
+
+<H1>all the work while the mod_perl program works as simply an outlet
+</H1>
+
+<H1>for communicating with the browsers.
+</H1>
+
+<H1><H2>Job Servers
+</H2></H1>
+
+=  =
+<H1>We'll explain the more about much more Simple job servers which dont
+</H1>
+
+<H1>use inter-kernel communication, but are implimented with more of a
+</H1>
+
+<H1>simple TCP protocol for enqueuing jobs and returning thier
+</H1>
+
+<H1>information.
+</H1>
+
+<H1><H1>POE's Private Parts
+</H1></H1>
+
+=  =
+<H1>And now we'll actually dig into the internals and more obscure parts of
+</H1>
+
+<H1>POE.  The point is the same as the recent abstractions, to make POE Easier
+</H1>
+
+<H1>to extend.  The goal is to document the Kernel abstractions promoting that
+</H1>
+
+<H1>pretty much any problem concievable can be solved without actually
+</H1>
+
+<H1>fiddling with the POE Kernel.
+</H1>
+
+<H1><H2>POE's Loops
+</H2></H1>
+
+=  =
+<H1>Such as the methods which are passed on to the POE Loops.
+</H1>
+
+<H1><H3>Loop Contexts
+</H3></H1>
+
+=  =
+<H1>It will describe how POE Selects which Loop to use. This should be
+</H1>
+
+<H1>useful information for anyone who wants to write an additional POE
+</H1>
+
+<H1>Loop to impliment something which doesn't currently exist.
+</H1>
+
+<H1><H5>+ Note
+</H5></H1>
+
+=  =
+<H1>Presumably by this time POE's new Loop Loading will be
+</H1>
+
+<H1>working properly.
+</H1>
+
+<H1><H3>Various POE Loops
+</H3></H1>
+
+=  =
+<H1>It will also describe a number of alternative POE Loops that
+</H1>
+
+<H1>already exist, and why they exist.  Surely this section will have
+</H1>
+
+<H1>plenty of references to the User Interface chapter.
+</H1>
+
+<H1><H2>POE Drivers
+</H2></H1>
+
+=  =
+<H1>In this section we'll be describing the more low level POE friendly IO
+</H1>
+
+<H1>than most people would really ever use...the SysRW Driver, which is
+</H1>
+
+<H1>used by most POE Wheels.
+</H1>
+
+<H1><H2>POE Queues
+</H2></H1>
+
+=  =
+<H1>We'll describe POE's Array Queue, and its FIFO organization of
+</H1>
+
+<H1>similarly prioritized items.
+</H1>
+
+<H1><H2>POE API
+</H2></H1>
+
+=  =
+<H1>We'll describe the new POE::API interface in short, and its new found
+</H1>
+
+<H1>ability to provide third party APIs into POE, without altering the
+</H1>
+
+<H1>Kernel itself.
+</H1>
+
+<H1><H2>POE Resource
+</H2></H1>
+
+=  =
+<H1>And how it can interact with the new Resource abstractions, as well as
+</H1>
+
+<H1>illustrate some of the current Resource abstractions available.
+</H1>
+
+<H1><H3>Resource Aliases
+</H3></H1>
+
+=  =
+<H1>Such as the managing of Session Aliases.
+</H1>
+
+<H1><H3>Resource Events
+</H3></H1>
+
+=  =
+<H1>We'll describe how abstracting the Event handling from the POE
+</H1>
+
+<H1>Kernel simplifies its tasks
+</H1>
+
+<H1><H3>Resource FileHandles
+</H3></H1>
+
+=  =
+<H1>And all the other stuff that has no public interface.
+</H1>
+
+<H1><H1>Appendix 
+</H1></H1>
+
+=  =
+<H1><H2>Quick Reference 
+</H2></H1>
+
+=  =
+<H1><H3>Kernel 
+</H3></H1>
+
+=  =
+<H1><H4>Methods
+</H4></H1>
+
+=  =
+<H1><H4>Exports
+</H4></H1>
+
+=  =
+<H1><H4>Debugging
+</H4></H1>
+
+=  =
+<H1><H3>Session 
+</H3></H1>
+
+=  =
+<H1><H4>Methods
+</H4></H1>
+
+=  =
+<H1><H4>Constructor Options
+</H4></H1>
+
+=  =
+<H1><H4>Event Fields
+</H4></H1>
+
+=  =
+<H1><H4>Predefined Event Names
+</H4></H1>
+
+=  =
+<H1><H3>Loop
+</H3></H1>
+
+=  =
+<H1><H3>API
+</H3></H1>
+
+=  =
+<H1><H3>Resource
+</H3></H1>
+
+=  =
+<H1><H3>Components
+</H3></H1>
+
+=  =
+<H1>Established and stable POE components, brief listing
+</H1>
+
+<H1><H4>POE::Component::IRC
+</H4></H1>
+
+=  =
+<H1>IRC Client Component
+</H1>
+
+<H1><H4>POE::Component::SNMP
+</H4></H1>
+
+=  =
+<H1>SNMP Client Component
+</H1>
+
+<H1><H4>POE::Component::Client::HTTP
+</H4></H1>
+
+=  =
+<H1>Flexable and fast HTTP and HTTPs Client Component.
+</H1>
+
+<H1><H4>POE::Component::Server::HTTP
+</H4></H1>
+
+=  =
+<H1>POE Micro WebServer.
+</H1>
+
+<H1><H4>POE::Component::Client::POP3
+</H4></H1>
+
+=  =
+<H1>Pop3 Client
+</H1>
+
+<H1><H4>POE::Component::Client::Ping
+</H4></H1>
+
+=  =
+<H1>Ping Client
+</H1>
+
+<H1><H4>POE::Component::Pcap
+</H4></H1>
+
+=  =
+<H1>libpcap Interface
+</H1>
+
+<H1><H4>POE::Component::Client::TCP
+</H4></H1>
+
+=  =
+<H1>Simplified TCP Client
+</H1>
+
+<H1><H4>POE::Component::Server::TCP
+</H4></H1>
+
+=  =
+<H1>Simplified TCP Server
+</H1>
+
+<H1><H4>POE::Component::Client::DNS
+</H4></H1>
+
+=  =
+<H1>A simple and effective DNS Client
+</H1>
+
+<H1><H4>POE::Component::LaDBI
+</H4></H1>
+
+=  =
+<H1>Nonblocking DBI Access
+</H1>
+
+<H1><H4>POE::Component::IKC
+</H4></H1>
+
+=  =
+<H1>InterKernel Communication Components
+</H1>
+
+<H1><H5>POE::Component::IKC::Client
+</H5></H1>
+
+=  =
+<H1>The Client
+</H1>
+
+<H1><H5>POE::Component::IKC::Server
+</H5></H1>
+
+=  =
+<H1>The Server
+</H1>
+
+<H1><H5>POE::Component::IKC::Responder
+</H5></H1>
+
+=  =
+<H1>State Handling
+</H1>
+
+<H1><H5>POE::Component::IKC::Specifier
+</H5></H1>
+
+=  =
+<H1>Event Specifier
+</H1>
+
+<H1><H5>POE::Component::IKC::Freezer
+</H5></H1>
+
+=  =
+<H1>Pure Perl Sterilization
+</H1>
+
+<H1><H1></outline></H1>
+
+</H1>
+

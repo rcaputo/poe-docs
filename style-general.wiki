@@ -1,0 +1,28 @@
+Formerly http://poe.perl.org/action/edit?id=POE_Documentation/Style_General
+
+---
+
+== The Elements of Style ==
+
+This section discusses typographical and syntactical conventions used
+throughout POE's documentation.
+
+=== Capitalization (c12n) ===
+
+People expect ``kernel'' to mean the operating system's, not POE's.
+Session also has a meaning in Unix, and while there's a little overlap
+between that meaning and POE's, it's different and similar enough at
+the same time to be confusing.
+
+Capitalize the names of POE classes to distinguish them from operating
+system constructs.  Preface them with ``POE's'' now and again to keep
+the reader oriented.
+
+
+This style guide is copyright 2001-2002 by Rocco Caputo.  All rights
+reserved.  This guide is free text and may be distributed and/or
+modified under the same terms as Perl itself.
+
+<!--
+" vim: syntax=wiki
+-->

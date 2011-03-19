@@ -1,3 +1,9 @@
-Name - CPAN ID (if applicable)
+This project is going to be an amalgam of several incomplete attempts
+to create a POE manual and/or book.  Wherever possible, authors past
+and present will be credited here.
 
+Devin Austin - DHOSS
 Rocco Caputo - RCAPUTO
+
+If you've been forgotten, please remind someone above, ask for a
+commit bit, or send a pull request.

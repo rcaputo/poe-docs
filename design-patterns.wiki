@@ -1,0 +1,89 @@
+Formerly http://poe.perl.org/?Design_Patterns
+
+---
+
+Design patterns.  The phrase conjures all sorts of visions.  Some
+people cringe, either because "design patterns" is overused or
+misused.  Others understand the utility of documented design elements
+and are eager to read on.  I hope everybody will at least take a brief
+look before closing the book---or worse, not opening it because they
+don't like the cover.
+
+== Components ==
+
+POE lends itself to asynchronous processes.  This tendency brings
+about asynchronous components.  Asynchrony means that command and
+response interfaces are loosely coupled, if at all, so this section is
+further decomposed into command and response interfaces.
+
+=== Command Interfaces ===
+
+[[/Command Message]]
+
+The component accepts commands in the form of asynchronous messages.
+One or more other sessions post these to the component, which then
+processes them.
+
+[[/Proxy Object]]
+
+Components can be hidden behind proxy objects.  In this case, the code
+to perform actions looks like simple method calls.  The main
+difference is that the methods may return an immediate result, the
+status of a pending result, or nothing particularly useful.
+
+Proxy object methods hide post() calls that send messages to some
+underlying session.  They may also provide glue between normal code
+and POE.
+
+Proxy objects may be singletons, in which case every instance is a
+reference to the same object.  They may also be dynamic, each holding
+some state outside the component's internal session.
+
+In their simplest form, proxy objects may be considered syntactic
+sugar for message services, since they are often thin wrappers for
+them.
+
+=== Response Interfaces ===
+
+[[/Callback]]
+
+Part of a command includes one of
+
+* a code reference
+* an object reference and/or method name
+* a package name and/or method name
+
+which the component then invokes with the response.
+
+[[/Response Message]]
+
+The response message has several mix-and-match aspects.
+
+The sender may be one of
+
+* the SENDER of the command message
+* specified in the command message
+
+The response message type may be one of
+
+* predefined by the component
+* specified in the command message
+
+The sender and response may together be defined by
+
+* a postback included in the command message
+
+but this is not portable across process boundaries.
+
+=== Tracking Commands and Responses ===
+
+Components that perform asynchronous activities need to save commands
+and send back appropriate responses.
+
+[[ToDo]]: This section will outline ways to do that when someone gets
+time to extend it.
+
+<!--
+" vim: syntax=wiki
+-->
+

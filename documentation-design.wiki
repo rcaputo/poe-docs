@@ -1,0 +1,33 @@
+Formerly
+
+---
+
+I thought it might be helpful to come up with a coherent design for
+POE documentation, get some feedback, and then start rewriting (as
+well as sending armed gorillas after anyone who writes module docs
+which don't stick to the design.)
+
+Some of this has already been discussed a level up, but rather than
+totally refactor that I want to focus on design and then refactor
+both.
+
+= Design goals =
+* [[/Accuracy]]
+* Clarity
+* Terseness
+* Forward reference reduction
+* Sane linkage
+* Simple multi-formatting
+
+= Documentation types =
+* Intro/tutorial
+* Overview
+* Cookbook
+* Reference
+* Module
+
+What I want is general spec covering the goals for each type (i.e.
+thirty <i>short, concise</i> wiki pages, plus a few introductory pages
+like this one.  I am just going to bull ahead with this, and
+(eventually) hit the mailing list(s) to try to get people in here to
+comment.
